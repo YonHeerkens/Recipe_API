@@ -32,7 +32,7 @@ pool.connect((err, _, release) => {
 
 app.get("/api/users", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM users");
+    const result = await pool.query("SELECT * FROM user");
 
     res.json({
       message: "Users retrieved successfully",
