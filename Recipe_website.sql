@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE "users" (
     "user_id" SERIAL PRIMARY KEY,
     "first_name" varchar NOT NULL,
     "last_name" varchar NOT NULL,
@@ -55,10 +55,10 @@ CREATE INDEX "idx_ingredient" ON "recipe_ingredients" ("ingredient_id");
 CREATE INDEX "idx_instruction_order" ON "instruction" ("recipe_id", "step_number");
 
 ALTER TABLE "login_information"
-ADD FOREIGN KEY ("user_id") REFERENCES "user" ("user_id") ON DELETE CASCADE;
+ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
 ALTER TABLE "recipe"
-ADD FOREIGN KEY ("user_id") REFERENCES "user" ("user_id") ON DELETE CASCADE;
+ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
 ALTER TABLE "recipe_ingredients"
 ADD FOREIGN KEY ("recipe_id") REFERENCES "recipe" ("recipe_id") ON DELETE CASCADE;
