@@ -19,7 +19,7 @@ const pool = new Pool({
 app.use(helmet()); // Security headers
 app.use(cors()); // Enable CORS
 app.use(morgan("combined")); // Logging
-app.use(express.json); // Parse JSON bodies
+app.use(express.json()); // Parse JSON bodies
 
 pool.connect((err, _, release) => {
   if (err) {
