@@ -48,7 +48,7 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-app.post('/api/user', create_userLimit, async (req, res) => {
+app.post('/api/user', async (req, res) => {
   try {
     const { first_name, last_name, email } = req.body;
 
@@ -156,11 +156,11 @@ const is_valid_email = (email) => {
 };
 
 // Used to prevent spam attacks by creating a bot that creates users
-const create_userLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs
-  message: 'Too many user creation attempts, please try again later',
-});
+// const create_user_limit = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 5, // limit each IP to 5 requests per windowMs
+//   message: 'Too many user creation attempts, please try again later',
+// });
 
 const is_suspicious_string = (string) => {
   if (typeof string !== 'string' || string.trim().length === 0) {
