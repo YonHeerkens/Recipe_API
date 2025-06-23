@@ -1,8 +1,8 @@
 CREATE TABLE "user" (
     "user_id" SERIAL PRIMARY KEY,
-    "first_name" varchar,
-    "last_name" varchar,
-    "email" varchar UNIQUE,
+    "first_name" varchar NOT NULL,
+    "last_name" varchar NOT NULL,
+    "email" varchar UNIQUE NOT NULL,
     "created_at" timestamp DEFAULT(now())
 );
 
@@ -10,7 +10,7 @@ CREATE TABLE "login_information" (
     "login_id" SERIAL PRIMARY KEY,
     "username" varchar UNIQUE NOT NULL,
     "password_hash" varchar NOT NULL,
-    "user_id" integer UNIQUE
+    "user_id" integer UNIQUE NOT NULL
 );
 
 CREATE TABLE "recipe" (
