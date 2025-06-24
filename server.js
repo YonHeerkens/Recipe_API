@@ -50,78 +50,26 @@ app.get('/api/user', async (req, res) => {
 
 app.post('/api/user', async (req, res) => {
   try {
-    const { first_name, last_name, email } = req.body;
+    const user_input = req.body;
 
-    // Input validation
-    // Cant have empty values when making a new user
-    if (!first_name || !last_name || !email) {
+    const validation_result = validateUserInput(user_input);
+
+    if (!validation_result.isValid) {
       return res.status(400).json({
-        error: 'First name, last name, and email are required',
+        error: validation_result.total_errors[0],
       });
     }
 
-    if (is_suspicious_string(first_name)) {
-      return res.status(400).json({
-        error: 'Please provide a valid first name',
-      });
-    }
+    const clean_data = cleanInput(user_input);
 
-    if (is_suspicious_string(last_name)) {
-      return res.status(400).json({
-        error: 'Please provide a valid last name',
-      });
-    }
-
-    if (is_suspicious_string(email) || !is_valid_email(email)) {
-      return res.status(400).json({
-        error: 'Please provide a valid email',
-      });
-    }
-
-    // Length validation
-    if (first_name.length > 50) {
-      return res.status(400).json({
-        error: 'First name must be 50 characters or less',
-      });
-    }
-
-    if (last_name.length > 50) {
-      return res.status(400).json({
-        error: 'Last name must be 50 characters or less',
-      });
-    }
-
-    if (email.length > 254) {
-      return res.status(400).json({
-        error: 'Email must be 254 characters or less',
-      });
-    }
-    // ----------- end validation
-
-    // Cleaning input
-    const clean_first_name = first_name.trim();
-    const clean_last_name = last_name.trim();
-    const clean_email = email.trim().toLowerCase();
-
-    // Prevent sql injections by using placeholders
-    const query = `
-    INSERT INTO users (first_name, last_name, email) 
-    VALUES($1,$2,$3) 
-    RETURNING *
-    `;
-
-    const result = await pool.query(query, [
-      clean_first_name,
-      clean_last_name,
-      clean_email,
-    ]);
-    const new_user = result.rows[0];
+    const new_user = await createUser(clean_data);
 
     res.status(201).json({
       message: 'User created successfully',
       user: new_user,
     });
   } catch (error) {
+    // Detailed error message for debugging
     console.error('Error creating new user', {
       error: error.message,
       code: error.code,
@@ -142,7 +90,96 @@ app.post('/api/user', async (req, res) => {
   }
 });
 
-const is_valid_email = (email) => {
+async function createUser(clean_data) {
+  // Prevent sql injections by using placeholders
+  const query = `
+    INSERT INTO users (first_name, last_name, email) 
+    VALUES($1,$2,$3) 
+    RETURNING *
+    `;
+
+  const { clean_first_name, clean_last_name, clean_email } = clean_data;
+  const result = await pool.query(query, [
+    clean_first_name,
+    clean_last_name,
+    clean_email,
+  ]);
+  return result.rows[0];
+}
+
+const cleanInput = (user_input) => {
+  const { first_name, last_name, email } = user_input;
+  return {
+    // Cleaning input
+    clean_first_name: first_name.trim(),
+    clean_last_name: last_name.trim(),
+    clean_email: email.trim().toLowerCase(),
+  };
+};
+
+const validateUserInput = (user_input) => {
+  const { first_name, last_name, email } = user_input;
+  const errors = [];
+
+  // Input validation
+  // Cant have empty values when making a new user
+  if (!first_name || !last_name || !email) {
+    errors.push('First name, last name, and email are required');
+    return {
+      isValid: false,
+      errors,
+    };
+  }
+
+  const is_suspicious = isUserInputSuspicious(user_input);
+  const length_check = validateUserInputLength(user_input);
+  const total_errors = [...errors, ...is_suspicious, ...length_check];
+
+  return {
+    isValid: total_errors.length === 0,
+    total_errors,
+  };
+};
+
+const isUserInputSuspicious = (user_input) => {
+  const { first_name, last_name, email } = user_input;
+  const errors = [];
+
+  if (isSuspiciousString(first_name)) {
+    errors.push('Please provide a valid first name');
+  }
+
+  if (isSuspiciousString(last_name)) {
+    errors.push('Please provide a valid last name');
+  }
+
+  if (isSuspiciousString(email) || !isValidEmail(email)) {
+    errors.push('Please provide a valid email');
+  }
+
+  return errors;
+};
+
+const validateUserInputLength = (user_input) => {
+  const { first_name, last_name, email } = user_input;
+  const errors = [];
+  // Length validation
+  if (first_name.length > 50) {
+    errors.push('First name must be 50 characters or less');
+  }
+
+  if (last_name.length > 50) {
+    errors.push('Last name must be 50 characters or less');
+  }
+
+  if (email.length > 254) {
+    errors.push('Email must be 254 characters or less');
+  }
+
+  return errors;
+};
+
+const isValidEmail = (email) => {
   // Email validation
   const emailRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -155,14 +192,7 @@ const is_valid_email = (email) => {
   return true;
 };
 
-// Used to prevent spam attacks by creating a bot that creates users
-// const create_user_limit = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 5, // limit each IP to 5 requests per windowMs
-//   message: 'Too many user creation attempts, please try again later',
-// });
-
-const is_suspicious_string = (string) => {
+const isSuspiciousString = (string) => {
   if (typeof string !== 'string' || string.trim().length === 0) {
     return true;
   }
