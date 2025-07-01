@@ -5,6 +5,6 @@ const router = express.Router();
 const user_routes = require('./login');
 
 // Mount routes with their base paths
-router.use('/user', user_routes);
+router.use('/login', user_routes);
 
 module.exports = router;
