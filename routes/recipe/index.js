@@ -5,6 +5,6 @@ const router = express.Router();
 const recipe_routes = require('./recipes');
 
 // Mount routes with their base paths
-router.use('/recipes', recipe_routes);
+router.use('/create', recipe_routes);
 
 module.exports = router;
