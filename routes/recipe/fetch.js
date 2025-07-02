@@ -14,7 +14,7 @@ router.get('/:id', async (req, res) => {
   SELECT * FROM recipe WHERE user_id = $1`;
 
   try {
-    const result = await db.query(query, req.id);
+    const result = await db.query(query, req.params.id);
 
     res.json({
       message: 'Recipes Successfully retrieved',
