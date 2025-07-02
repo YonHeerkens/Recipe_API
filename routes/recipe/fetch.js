@@ -11,7 +11,17 @@ const db = require('../../db');
  */
 router.get('/:id', async (req, res) => {
   const query = `
-  SELECT * FROM recipe WHERE user_id = $1`;
+  SELECT 
+    r.recipe_id, r.recipe_name, r.cook_time,
+    i.ingredient_name, i.quantity, i.unit,
+    inst.step_number, inst.instruction_text
+  FROM recipe r
+  LEFT JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
+  LEFT JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
+  LEFT JOIN instruction inst ON r.recipe_id = inst.recipe_id
+  WHERE r.user_id = $1
+  ORDER BY r.recipe_id, ri.ingredient_name, inst.step_number;
+  `;
 
   try {
     const result = await db.query(query, [req.params.id]);
