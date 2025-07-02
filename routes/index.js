@@ -6,7 +6,7 @@ const recipe_routes = require('./recipe');
 const user_routes = require('./user');
 
 // Mount routes with their base paths
-router.use('/recipes', recipe_routes);
+router.use('/recipe', recipe_routes);
 router.use('/user', user_routes);
 
 module.exports = router;
