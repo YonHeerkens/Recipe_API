@@ -1,12 +1,31 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../../db');
 
-router.get('/', (req, res) => {
-  res.json({ message: 'This it the get endpoint' });
-});
+// add a user_id requirement as filter later
+/**
+ * @route GET /api/recipe/fetch:user_id
+ * @description Gets all the recipes belonging to a certain user
+ * @param {id} -user_id, decides which recipes to show for a user
+ * @return {recipe_id, user_id, recipe_name, cook_time, oven_time, servings, difficulty_level}
+ */
+router.get('/:user_id', async (req, res) => {
+  const query = `
+  SELECT * FROM recipe WHERE user_id = $1`;
 
-router.post('/', (req, res) => {
-  res.json({ message: 'This is the post endpoint for recipes' });
+  try {
+    const result = await db.query(query, req.user_id);
+
+    res.json({
+      message: 'Recipes Successfully retrieved',
+      recipes: result.rows,
+    });
+  } catch (error) {
+    console.error('Database error', error);
+    res.status(500).json({
+      error: 'Failed to retrieve recipes',
+    });
+  }
 });
 
 module.exports = router;

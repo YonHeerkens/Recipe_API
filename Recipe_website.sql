@@ -20,7 +20,7 @@ CREATE TABLE "recipe" (
     "cook_time" integer,
     "oven_time" integer,
     "servings" integer,
-    "difficulty_level" varchar,
+    "difficulty_level" integer,
     "created_at" timestamp DEFAULT(now()),
     "updated_at" timestamp
 );
