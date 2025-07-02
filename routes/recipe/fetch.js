@@ -9,12 +9,12 @@ const db = require('../../db');
  * @param {id} -user_id, decides which recipes to show for a user
  * @return {recipe_id, user_id, recipe_name, cook_time, oven_time, servings, difficulty_level}
  */
-router.get('/:user_id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   const query = `
   SELECT * FROM recipe WHERE user_id = $1`;
 
   try {
-    const result = await db.query(query, req.user_id);
+    const result = await db.query(query, req.id);
 
     res.json({
       message: 'Recipes Successfully retrieved',
