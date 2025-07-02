@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
     console.error('Error creating a new recipe', {
       error: error.message,
       code: error.code,
-      detail: error.etail,
+      detail: error.detail,
       timestamp: new Date().toISOString(),
       body: req.body,
     });

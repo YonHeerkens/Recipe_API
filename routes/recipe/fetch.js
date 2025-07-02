@@ -24,6 +24,7 @@ router.get('/:id', async (req, res) => {
     console.error('Database error', error);
     res.status(500).json({
       error: 'Failed to retrieve recipes',
+      body: req.body,
     });
   }
 });
